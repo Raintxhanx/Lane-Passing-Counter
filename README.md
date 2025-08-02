@@ -1,50 +1,68 @@
-# Lane Passing Counter
+# 🛣️ Lane Passing Counter - YOLO Object Detection with Streamlit
 
-## Overview
-The Lane Passing Counter is a Python application designed to count individuals passing through a defined line using object detection techniques. It utilizes the YOLOv5 model for real-time detection and provides a user-friendly interface for monitoring and logging events.
+Deteksi dan pelacakan objek (seperti manusia atau kendaraan) secara otomatis saat melewati garis interaktif menggunakan model YOLO. Dibuat untuk seleksi asisten laboratorium sebagai proyek computer vision berbasis Python + Streamlit + OpenCV.
 
-## Features
-- Real-time counting of individuals passing through a designated line.
-- Utilizes YOLOv5 for accurate object detection.
-- Logs counting events to a SQLite database.
-- Visual representation of detected objects and counting line.
+## 🚀 Fitur Utama
 
-## Project Structure
-```
-lane-passing-counter
-├── src
-│   ├── main.py          # Entry point of the application
-│   ├── counter.py       # Logic for counting individuals
-│   ├── utils.py         # Utility functions for model and drawing
-├── tests
-│   └── test_counter.py   # Unit tests for the counter functionality
-├── requirements.txt      # Project dependencies
-└── README.md             # Project documentation
-```
+- 📥 Upload video dan jalankan deteksi berbasis model YOLOv11
+- 🧠 Pelacakan objek secara real-time
+- 🎯 Tentukan garis pemantauan (line passing) dan arah kedatangan
+- 🎞️ Tampilkan hasil deteksi langsung di Streamlit UI
+- 🧹 Hapus file lama secara otomatis untuk menjaga kebersihan sistem
+- 📊 Rencana: Visualisasi statistik dan koneksi database
 
-## Installation
-1. Clone the repository:
-   ```
-   git clone <repository-url>
-   cd lane-passing-counter
-   ```
+## 🧩 Teknologi
 
-2. Install the required dependencies:
-   ```
-   pip install -r requirements.txt
-   ```
+- [YOLOv11 (Ultralytics)](https://github.com/ultralytics/ultralytics)
+- Streamlit untuk antarmuka web interaktif
+- OpenCV untuk pemrosesan video
+- Python 3.11+
+- MoviePy dan FFmpeg untuk codec H.264 (kompatibel HTML5)
 
-3. Download the YOLOv5 model:
-   - Place the `yolov5s.pt` model file in the `models` directory.
+## 📸 Demo Antarmuka
 
-## Usage
-To start the lane passing counter, run the following command:
-```
-python src/main.py
-```
+| Upload Video | Tentukan Garis | Deteksi & Tampilkan |
+|--------------|----------------|----------------------|
+| ✅           | ✍️ Klik 2 Titik | 🔍 YOLO Tracking     |
 
-## Contributing
-Contributions are welcome! Please open an issue or submit a pull request for any enhancements or bug fixes.
+*(tambahkan screenshot jika ada)*
 
-## License
-This project is licensed under the MIT License. See the LICENSE file for more details.
+## 📁 Struktur Proyek
+
+lane-passing-counter/
+│
+├── app/
+│ ├── main.py # UI utama dengan Streamlit
+│ └── detection.py # Fungsi YOLO tracking
+│
+├── models/
+│ └── yolo11m.pt # Model YOLO terlatih
+│
+├── videos/ # Tempat file video hasil deteksi
+└── requirements.txt
+
+
+---
+
+## ⚙️ Cara Menjalankan
+
+### 1. Clone Proyek
+
+git clone https://github.com/raintxhanx/lane-passing-counter.git
+cd lane-passing-counter 
+
+### 2. Clone Proyek
+
+python -m venv MyEnv
+MyEnv\Scripts\activate     # Windows
+# atau
+source MyEnv/bin/activate  # Linux/macOS
+
+### 3. Install Dependensi
+
+pip install -r requirements.txt
+
+### 4. Jalankan Aplikasi
+streamlit run app/main.py
+
+buka http://localhost:8501
