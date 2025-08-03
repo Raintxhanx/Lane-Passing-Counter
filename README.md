@@ -21,9 +21,7 @@ Deteksi dan pelacakan objek (seperti manusia atau kendaraan) secara otomatis saa
 
 ## 📸 Hasil
 
-<video width="600" controls>
-  <source src="./asset/output_333883cc2572432d8a2fb024526aefb0_h264.mp4" type="video/mp4">
-</video>
+![Demo](assets/output_333883cc2572432d8a2fb024526aefb0_h264.gif)
 
 
 ## ⚙️ Cara Menjalankan
