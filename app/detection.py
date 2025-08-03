@@ -29,7 +29,7 @@ def run_yolo_tracking(video_source="your_video.mp4", model_path="yolov11m.pt"):
         persist=True,
         stream=True,
         classes=[0],  # only person
-        tracker="bytetrack.yaml"
+        tracker="miawtracker.yaml"
     )
 
     frame_count = 0

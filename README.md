@@ -30,14 +30,11 @@ Deteksi dan pelacakan objek (seperti manusia atau kendaraan) secara otomatis saa
 ## 📁 Struktur Proyek
 
 lane-passing-counter/
-│
 ├── app/
 │ ├── main.py # UI utama dengan Streamlit
 │ └── detection.py # Fungsi YOLO tracking
-│
 ├── models/
 │ └── yolo11m.pt # Model YOLO terlatih
-│
 ├── videos/ # Tempat file video hasil deteksi
 └── requirements.txt
 
@@ -55,7 +52,9 @@ cd lane-passing-counter
 
 python -m venv MyEnv
 MyEnv\Scripts\activate     # Windows
-# atau
+
+atau
+
 source MyEnv/bin/activate  # Linux/macOS
 
 ### 3. Install Dependensi
