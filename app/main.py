@@ -123,9 +123,12 @@ if "saved_path" in st.session_state and st.button("Jalankan Deteksi") and not st
         save_path = st.session_state["saved_path"]
         st.write("Menjalankan deteksi pada video...")
 
+        x1, y1 = st.session_state["line_coords"][0]
+        x2, y2 = st.session_state["line_coords"][1]
+
         st.session_state["is_detection"] = True
         # Jalankan YOLO tracking
-        result_path = run_yolo_tracking(video_source=save_path, model_path=model_path)
+        result_path = run_yolo_tracking(video_source=save_path, model_path=model_path, x1=x1, y1=y1, x2=x2, y2=y2)
 
         #Tampilkan video hasil jika ada (opsional)
         if os.path.exists(result_path):

@@ -4,7 +4,21 @@ import uuid
 import os
 from moviepy.editor import VideoFileClip
 
-def run_yolo_tracking(video_source="your_video.mp4", model_path="yolov11m.pt"):
+def ccw(A, B, C):
+    return (C[1] - A[1]) * (B[0] - A[0]) > (B[1] - A[1]) * (C[0] - A[0])
+
+def intersect(A, B, C, D):
+    return ccw(A, C, D) != ccw(B, C, D) and ccw(A, B, C) != ccw(A, B, D)
+
+def intersects_line(box, line):
+    x1, y1, x2, y2 = box
+    mid_x = int((x1 + x2) / 2)
+    top_y = int(y1)
+    bottom_y = int(y2)
+    box_line = [(mid_x, top_y), (mid_x, bottom_y)]
+    return intersect(line[0], line[1], box_line[0], box_line[1])
+
+def run_yolo_tracking(video_source="your_video.mp4", model_path="yolov8m.pt", x1=0, y1=0, x2=0, y2=0):
     print(f"[INFO] Processing video: {video_source}")
     
     # Get video properties
@@ -22,7 +36,7 @@ def run_yolo_tracking(video_source="your_video.mp4", model_path="yolov11m.pt"):
     print(f"[INFO] Loading YOLO model: {model_path}")
     model = YOLO(model_path)
 
-    # Use simpler tracker configuration to avoid fuse_score error
+    # Setup tracking + config
     results = model.track(
         source=video_source,
         conf=0.3,
@@ -31,6 +45,12 @@ def run_yolo_tracking(video_source="your_video.mp4", model_path="yolov11m.pt"):
         classes=[0],  # only person
         tracker="miawtracker.yaml"
     )
+
+    # --- Garis vertikal dan variabel counting ---
+    line = [(x1, y1), (x2, y2)]
+    line_color = (0, 255, 255)
+    count = 0
+    track_history = {}
 
     frame_count = 0
     print("[INFO] Starting detection and tracking...")
@@ -41,28 +61,51 @@ def run_yolo_tracking(video_source="your_video.mp4", model_path="yolov11m.pt"):
         frame_count += 1
         print(f"[INFO] Processing frame {frame_count}")
 
+        # Gambar garis counting
+        cv2.line(frame, line[0], line[1], line_color, 2)
+
+        ids_in_frame = set()
+
         for box in boxes:
-            track_id = int(box.id[0]) if box.id is not None else -1
-            conf = float(box.conf[0])
+            if box.id is None:
+                continue
+
+            track_id = int(box.id[0])
+            ids_in_frame.add(track_id)
 
             x1, y1, x2, y2 = map(int, box.xyxy[0])
-            color = (0, 255, 0)
-            cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
-            cv2.putText(frame, f'ID:{track_id} {conf:.2f}', (x1, y1 - 10),
-                       cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, 2)
+            conf = float(box.conf[0])
 
-        # Save frame to video
+            if track_id not in track_history:
+                track_history[track_id] = {"is_passing": False}
+
+            if intersects_line((x1, y1, x2, y2), line) and not track_history[track_id]["is_passing"]:
+                track_history[track_id]["is_passing"] = True
+                count += 1
+                print(f"[COUNT] Track ID {track_id} crossed the line. Total count: {count}")
+
+            # Gambar box dan ID
+            cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+            cv2.putText(frame, f'ID:{track_id} {conf:.2f}', (x1, y1 - 10),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
+
+        # Hapus track_id yang sudah tidak muncul
+        to_delete = [tid for tid in track_history if tid not in ids_in_frame]
+        for tid in to_delete:
+            del track_history[tid]
+
+        # Tampilkan jumlah counting
+        cv2.putText(frame, f'Count: {count}', (20, 40),
+                    cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 255), 2)
+
         out.write(frame)
-        
-        # Display frame
         cv2.imshow("Tracking", frame)
         if cv2.waitKey(1) & 0xFF == 27:  # ESC to exit
             break
 
-    # Cleanup
     out.release()
     cv2.destroyAllWindows()
-    
+
     print(f"[INFO] Processing completed!")
     print(f"[INFO] Total frames processed: {frame_count}")
     print(f"[INFO] Output saved to: {out_path}")

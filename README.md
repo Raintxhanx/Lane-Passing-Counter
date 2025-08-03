@@ -19,27 +19,12 @@ Deteksi dan pelacakan objek (seperti manusia atau kendaraan) secara otomatis saa
 - Python 3.11+
 - MoviePy dan FFmpeg untuk codec H.264 (kompatibel HTML5)
 
-## 📸 Demo Antarmuka
+## 📸 Hasil
 
-| Upload Video | Tentukan Garis | Deteksi & Tampilkan |
-|--------------|----------------|----------------------|
-| ✅           | ✍️ Klik 2 Titik | 🔍 YOLO Tracking     |
+<video width="600" controls>
+  <source src="./asset/output_333883cc2572432d8a2fb024526aefb0_h264.mp4" type="video/mp4">
+</video>
 
-*(tambahkan screenshot jika ada)*
-
-## 📁 Struktur Proyek
-
-lane-passing-counter/
-├── app/
-│ ├── main.py # UI utama dengan Streamlit
-│ └── detection.py # Fungsi YOLO tracking
-├── models/
-│ └── yolo11m.pt # Model YOLO terlatih
-├── videos/ # Tempat file video hasil deteksi
-└── requirements.txt
-
-
----
 
 ## ⚙️ Cara Menjalankan
 
