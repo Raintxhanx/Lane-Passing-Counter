@@ -115,7 +115,7 @@ def run_yolo_tracking(video_source="your_video.mp4", model_path="yolov8m.pt", x1
     out_path = convert_to_h264(out_path, out_path.replace('.mp4', '_h264.mp4'))
     os.remove(old_out_path)  # Remove old file if conversion was successful
 
-    return out_path
+    return out_path, count
 
 def convert_to_h264(input_path, output_path):
     try:

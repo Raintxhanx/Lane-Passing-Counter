@@ -7,15 +7,26 @@ from detection import run_yolo_tracking
 from streamlit_image_coordinates import streamlit_image_coordinates
 from PIL import Image
 import cv2
+from dotenv import load_dotenv
 
 # Buat folder uploads jika belum ada
 current_path = os.path.abspath(__file__)       # path file ini
 UPLOAD_DIR = os.path.dirname(current_path)     # 1 level ke atas
 APP_DIR = grandparent_dir = os.path.dirname(UPLOAD_DIR)  # 2 level ke atas
 
+# === Load ENV from root ===
+ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+ENV_PATH = os.path.join(ROOT_DIR, '.env')
+load_dotenv(dotenv_path=ENV_PATH)
+
+# ==== Ambil model path dari .env ====
+model_path_env = os.getenv("YOLO_MODEL")
+if not model_path_env:
+    st.error("YOLO_MODEL tidak ditemukan di .env")
+    st.stop()
 
 st.title("Deteksi dan Pelacakan Objek dengan YOLO")
-model_path = APP_DIR + "/models/yolo11m.pt"
+model_path = APP_DIR + "/models/" + model_path_env
 
 # Upload file
 uploaded_file = st.file_uploader("Pilih video", type=["mp4", "mov", "avi"])
@@ -43,34 +54,41 @@ if uploaded_file is not None:
                 print(f"Error deleting previous video: {e}")
 
     if st.button("Simpan File"):
-        # Clean up previous video if exists
-        cleanup_previous_video()
-        
-        save_path, unique_name = save_video(uploaded_file)
+        if st.session_state["is_detection"] is False:
+            # Clean up previous video if exists
+            cleanup_previous_video()
+            
+            save_path, unique_name = save_video(uploaded_file)
 
-        st.success(f"File berhasil disimpan sebagai: {unique_name}")
-        st.write(f"Lokasi file: `{save_path}`")
+            st.success(f"File berhasil disimpan sebagai: {unique_name}")
+            st.write(f"Lokasi file: `{save_path}`")
 
-        # Update session state with new video info
-        st.session_state["saved_path"] = save_path
-        st.session_state["saved_name"] = unique_name
+            # Update session state with new video info
+            st.session_state["saved_path"] = save_path
+            st.session_state["saved_name"] = unique_name
 
-        # Show warning about one video limit
-        st.info("Catatan: Hanya satu video yang dapat disimpan pada satu waktu. Video sebelumnya akan dihapus otomatis.")
-        st.session_state["show_line_picker"] = False
+            # Show warning about one video limit
+            st.info("Catatan: Hanya satu video yang dapat disimpan pada satu waktu. Video sebelumnya akan dihapus otomatis.")
+            st.session_state["show_line_picker"] = False
+            st.session_state["line_coords"] = []
+        else:
+            st.warning("Deteksi sedang berjalan. Silakan tunggu hingga selesai sebelum menyimpan video baru.")
 
     if st.button("Hapus Video"):
-        if "saved_path" in st.session_state and os.path.exists(st.session_state["saved_path"]):
-            os.remove(st.session_state["saved_path"])
-            st.success("Video berhasil dihapus.")
-            st.session_state.pop("saved_path", None)
-            st.session_state.pop("saved_name", None)
+        if st.session_state["is_detection"] is False:
+            if "saved_path" in st.session_state and os.path.exists(st.session_state["saved_path"]):
+                os.remove(st.session_state["saved_path"])
+                st.success("Video berhasil dihapus.")
+                st.session_state.pop("saved_path", None)
+                st.session_state.pop("saved_name", None)
+            else:
+                st.warning("Tidak ada video yang disimpan untuk dihapus.")
+            if "result_path" in st.session_state and os.path.exists(st.session_state["result_path"]):
+                os.remove(st.session_state["result_path"])
+                st.success("Video hasil deteksi berhasil dihapus.")
+                st.session_state.pop("result_path", None)
         else:
-            st.warning("Tidak ada video yang disimpan untuk dihapus.")
-        if "result_path" in st.session_state and os.path.exists(st.session_state["result_path"]):
-            os.remove(st.session_state["result_path"])
-            st.success("Video hasil deteksi berhasil dihapus.")
-            st.session_state.pop("result_path", None)
+            st.warning("Deteksi sedang berjalan. Silakan tunggu hingga selesai sebelum menghapus video.")
 
 # Tombol untuk mulai menentukan garis
 if "saved_path" in st.session_state and st.button("Buat Garis"):
@@ -97,6 +115,7 @@ if st.session_state.get("show_line_picker", False):
         # Konversi BGR (OpenCV) ke RGB (Streamlit)
         frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         pil_image = Image.fromarray(frame_rgb)
+        st.session_state["pil_image_width"] = pil_image.width
         st.write("Klik dua titik pada gambar untuk menentukan line passing:")
         coords = streamlit_image_coordinates(pil_image)
 
@@ -128,16 +147,17 @@ if "saved_path" in st.session_state and st.button("Jalankan Deteksi") and not st
 
         st.session_state["is_detection"] = True
         # Jalankan YOLO tracking
-        result_path = run_yolo_tracking(video_source=save_path, model_path=model_path, x1=x1, y1=y1, x2=x2, y2=y2)
+        result_path, counter = run_yolo_tracking(video_source=save_path, model_path=model_path, x1=x1, y1=y1, x2=x2, y2=y2)
 
         #Tampilkan video hasil jika ada (opsional)
         if os.path.exists(result_path):
             with open(result_path, 'rb') as video_file:
                 video_bytes = video_file.read()
-                st.video(video_bytes)
+                st.video(video_bytes, width=st.session_state["pil_image_width"])
 
         st.session_state["is_detection"] = False
         st.session_state["result_path"] = result_path
+        st.write(f"Deteksi selesai. Total orang yang melewati garis: {counter}")
 
     else:
         st.warning("Silakan tentukan garis terlebih dahulu sebelum menjalankan deteksi.")

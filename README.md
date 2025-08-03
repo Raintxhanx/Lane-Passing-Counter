@@ -1,15 +1,14 @@
 # 🛣️ Lane Passing Counter - YOLO Object Detection with Streamlit
 
-Deteksi dan pelacakan objek (seperti manusia atau kendaraan) secara otomatis saat melewati garis interaktif menggunakan model YOLO. Dibuat untuk seleksi asisten laboratorium sebagai proyek computer vision berbasis Python + Streamlit + OpenCV.
+Deteksi dan pelacakan objek (seperti manusia atau kendaraan) secara otomatis saat melewati garis interaktif menggunakan model YOLO. Dibuat untuk seleksi asisten laboratorium sebagai proyek computer vision berbasis Python + Streamlit + YOLO.
 
 ## 🚀 Fitur Utama
 
 - 📥 Upload video dan jalankan deteksi berbasis model YOLOv11
 - 🧠 Pelacakan objek secara real-time
-- 🎯 Tentukan garis pemantauan (line passing) dan arah kedatangan
+- 🎯 Tentukan garis pemantauan (line passing)
 - 🎞️ Tampilkan hasil deteksi langsung di Streamlit UI
 - 🧹 Hapus file lama secara otomatis untuk menjaga kebersihan sistem
-- 📊 Rencana: Visualisasi statistik dan koneksi database
 
 ## 🧩 Teknologi
 
@@ -17,7 +16,6 @@ Deteksi dan pelacakan objek (seperti manusia atau kendaraan) secara otomatis saa
 - Streamlit untuk antarmuka web interaktif
 - OpenCV untuk pemrosesan video
 - Python 3.11+
-- MoviePy dan FFmpeg untuk codec H.264 (kompatibel HTML5)
 
 ## 📸 Hasil
 
